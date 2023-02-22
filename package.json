@@ -1,0 +1,41 @@
+{
+    "name": "dbl-sdk",
+    "description": "A Discord Bot List SDK to cover all supported API's.",
+    "version": "1.0.0",
+    "main": "dist/main.js",
+    "exports": {
+        "import": "./dist/main.js",
+        "require": "./dist/main.cjs",
+        "types": null,
+        "node": null,
+        "default": null
+    },
+    "scripts": {
+        "start": "npm i && npm audit fix -f && npm fund && tsc -w",
+        "build": "tsc && npx tsup src/main.ts && npx prettier --write src"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/TheDummi/dbl-sdk.git"
+    },
+    "keywords": [
+        "discord",
+        "bot list",
+        "discord bot list",
+        "discord.js"
+    ],
+    "author": "Dummi",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/TheDummi/dbl-sdk/issues"
+    },
+    "homepage": "https://github.com/TheDummi/dbl-sdk#readme",
+    "devDependencies": {
+        "prettier": "^2.8.4",
+        "tsup": "^6.6.3",
+        "typescript": "^4.9.5"
+    },
+    "dependencies": {
+        "zod": "^3.20.6"
+    }
+}
