@@ -1,12 +1,19 @@
 import { z } from 'zod';
 
-import postStats from './models/stats.js';
+import { getVotes } from './models/getVotes.js';
+import postStats from './models/postStats.js';
+import { Client, ConfigOptions, Options } from './types/interfaces.js';
 
 export default class DBL {
     public client;
     public options;
     constructor(client: Client, options: Options) {
         this.client = client;
+
+        this.client.stats = {
+            createdAt: Number(Date.now()),
+            updatedAt: Number(Date.now()),
+        } as const;
 
         z.object({
             topgg: z
@@ -29,40 +36,43 @@ export default class DBL {
 
         this.options = options;
 
-        if (!options.topgg) options.topgg = null;
-        if (!options.dbl) options.dbl = null;
-
-        this.post();
+        if (!this.options.topgg) this.options.topgg = null;
+        if (!this.options.dbl) this.options.dbl = null;
+        if (!this.options.config) this.options.config = { emits: false, logs: false };
 
         setInterval(() => {
             this.post();
+
+            this.get();
+
+            client.emit('webhookCreate', client, client.stats);
         }, 1800000);
+
+        // Instants
+        this.get();
+
+        // after client load
+        (async () => {
+            const guilds = await client.guilds.fetch(),
+                time = guilds.size * 100;
+
+            if (options.config?.logs) console.log(`Loading servers this will take ${time / 1000} seconds.`);
+
+            await new Promise((resolve) => setTimeout(resolve, time));
+
+            this.post();
+
+            client.emit('webhookCreate', client, client.stats);
+        })();
     }
 
     post() {
-        if (this.options.topgg) postStats(this.options.topgg.token, this.client, 'top.gg', this.options.config);
-        if (this.options.dbl) postStats(this.options.dbl.token, this.client, 'dbl', this.options.config);
+        if (this.options.topgg) postStats(this.options.topgg.token, this.client, 'top.gg', this.options.config as ConfigOptions);
+        if (this.options.dbl) postStats(this.options.dbl.token, this.client, 'dbl', this.options.config as ConfigOptions);
     }
-}
 
-export interface Client {
-    options: {
-        shards: Array<number>;
-        shardCount: number;
-    };
-    ws: { totalShards: number };
-    user: { id: string };
-    guilds: Record<string, Function>;
-    emit: Function;
-}
-
-interface Options {
-    topgg: { token: string } | null;
-    dbl: { token: string } | null;
-    config: ConfigOptions;
-}
-
-export interface ConfigOptions {
-    emits?: boolean;
-    logs?: boolean;
+    get() {
+        if (this.options.topgg) getVotes(this.options.topgg.token, this.client, 'top.gg');
+        if (this.options.dbl) getVotes(this.options.dbl.token, this.client, 'dbl');
+    }
 }

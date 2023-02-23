@@ -1,22 +1,24 @@
-import { Client, ConfigOptions } from '../main.js';
+import { Client, ConfigOptions, FetchRequest } from '../types/interfaces.js';
+import { Host } from '../types/types.js';
+import { fetchRequest } from './fetchRequest.js';
+import saveStats from './saveStats.js';
 
-export default async function postStats(token: string, client: Client, host: 'top.gg' | 'dbl', config: ConfigOptions) {
-    let request;
+export default async function postStats(token: string, client: Client, host: Host, config: ConfigOptions) {
+    let request: FetchRequest | null = null;
 
     const guilds = await client.guilds.fetch();
-
-    console.log(`Loading servers this will take ${(guilds.size * 100) / 1000} seconds.`);
-
-    await new Promise((resolve) => setTimeout(resolve, guilds.size * 100));
 
     const shardId = client.options.shards[0] || 0,
         shardCount = client.options.shardCount || client.ws.totalShards || client.options.shards.length,
         guildSize = guilds.size,
         userSize = (await Promise.all(guilds.map(async (g: Record<string, number>) => (await client.guilds.fetch(g.id)).memberCount || 0))).reduce((a, b) => (a += b));
 
+    saveStats(client, { shardId, shardCount, guildSize, userSize });
+
     if (host === 'top.gg')
         request = {
             url: `https://top.gg/api/bots/stats`,
+            method: 'POST',
             headers: {
                 Authorization: token,
                 'Content-Type': 'application/json',
@@ -31,6 +33,7 @@ export default async function postStats(token: string, client: Client, host: 'to
     if (host === 'dbl') {
         request = {
             url: `https://discordbotlist.com/api/v1/bots/${client.user.id}/stats`,
+            method: 'POST',
             headers: {
                 Authorization: token,
                 'Content-Type': 'application/json',
@@ -57,26 +60,4 @@ export default async function postStats(token: string, client: Client, host: 'to
         if (!response.ok) console.log(`An error occurred while posting to ${host}. ${data}`);
         else console.log(`Successfully posted to ${host}. ${request.body}`);
     }
-}
-
-async function fetchRequest(request: Partial<FetchRequest>) {
-    if (!request.url) throw new Error('No URL provided');
-
-    const url = request.url;
-
-    delete request.url;
-
-    request.method = 'POST';
-
-    return await fetch(url, request);
-}
-
-interface FetchRequest {
-    url: string;
-    method?: string;
-    headers: {
-        Authorization: string;
-        'Content-Type'?: string;
-    };
-    body: string;
 }
