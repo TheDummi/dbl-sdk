@@ -32,7 +32,7 @@ export async function getVotes(token: string, client: Client, host: Host) {
 
     const data = await response.json();
 
-    if (!response.ok) console.error(`Couldn't get most recent votes! ${data}`);
+    if (!response.ok) console.error(`Couldn't get most recent votes! ${JSON.stringify(data)}`);
     else {
         saveStats(client, {
             totalUpvotes: (client.stats?.totalUpvotes || 0) + (data?.length || data?.total),

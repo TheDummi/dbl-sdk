@@ -1,6 +1,6 @@
 import DBL from '../dist/main.js';
 import { Client, GatewayIntentBits } from 'discord.js';
-import config from './config.json';
+import config from './config.json' assert { type: 'json' };
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
