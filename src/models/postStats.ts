@@ -10,10 +10,10 @@ export default async function postStats(token: string, client: Client, host: Hos
 
     const shardId = client.options.shards[0] || 0,
         shardCount = client.options.shardCount || client.ws.totalShards || client.options.shards.length,
-        guildSize = guilds.size,
-        userSize = (await Promise.all(guilds.map(async (g: Record<string, number>) => (await client.guilds.fetch(g.id)).memberCount || 0))).reduce((a, b) => (a += b));
+        guildCount = guilds.size,
+        userCount = (await Promise.all(guilds.map(async (g: Record<string, number>) => (await client.guilds.fetch(g.id)).memberCount || 0))).reduce((a, b) => (a += b));
 
-    saveStats(client, { shardId, shardCount, guildSize, userSize });
+    saveStats(client, { shardId, shardCount, guildCount, userCount });
 
     if (host === 'top.gg')
         request = {
@@ -24,7 +24,7 @@ export default async function postStats(token: string, client: Client, host: Hos
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                server_count: guildSize,
+                server_count: guildCount,
                 shard_id: shardId,
                 shard_count: shardCount,
             }),
@@ -39,9 +39,9 @@ export default async function postStats(token: string, client: Client, host: Hos
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                guilds: guildSize,
+                guilds: guildCount,
                 shard_id: shardId,
-                users: userSize,
+                users: userCount,
             }),
         };
     }
@@ -52,9 +52,11 @@ export default async function postStats(token: string, client: Client, host: Hos
 
     const data = await response.json();
 
+    if (!request.body) return;
+
     if (config.emits) {
-        if (!response.ok) client.emit('webhookError', client, request.body, data, host);
-        else client.emit('webhookPost', client, request.body, data, host);
+        if (!response.ok) client.emit('webhookError', client, JSON.parse(request.body), data, host);
+        else client.emit('webhookPost', client, JSON.parse(request.body), data, host);
     }
     if (config.logs) {
         if (!response.ok) console.log(`An error occurred while posting to ${host}. ${data}`);

@@ -57,13 +57,13 @@ console.log(client.stats)
 {
   createdAt: number, // The timestamp of the first post in this process
   updatedAt: number, // The timestamp of the most recent update in this process
-  totalUpvotes: number, // All votes combined between all hosts
+  upvoteCount: number, // All votes combined between all hosts
   dbl: { upvotes: number, votes: Array<Record<string, string|number>> }, // The Discordbotlists data
   'top.gg': { upvotes: number, votes: Array<Record<string, string|number>> }, // The top.gg data
   shardId: number, // The id of the current shard
   shardCount: number, // The total count of shards
-  guildSize: number, // The total number of guilds
-  userSize: number // The total number of users
+  guildCount: number, // The total number of guilds
+  userCount: number // The total number of users
 }
 ```
 
@@ -73,11 +73,29 @@ There is 3 events that can be emitted as of now.
 
 ### webhookCreate
 
-@since 1.1.0
+@since 1.1.0  
+@deprecated
+
+This event is deprecated and should be replaced with `webhookInit`.
 
 ```ts
 client.on('webhookCreate', (client, stats, response, host) => {
     /* Emitted whenever stats are updated */
+
+    client: typeof Discord.Client; // The client after the update
+    stats: Record<string, number>; // The stats used to update
+    response: Record<string, string | number>; // The direct response from the host
+    host: 'top.gg' | 'dbl'; // The host that was updated
+});
+```
+
+### webhookInit
+
+@since 1.2.0
+
+```ts
+client.on('webhookInit', (client, stats) => {
+    /* Emitted whenever the first webhook update happens */
 
     client: typeof Discord.Client; // The client after the update
     stats: Record<string, number>; // The stats used to update
@@ -117,6 +135,21 @@ client.on('webhookPost', (client, stats, error) => {
 ```
 
 If your're using JavaScript, you can find out what [Record<K, T>](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type) is. (spoiler alert, it's a more specific object)
+
+## Methods
+
+### hasVoted(userId, botId, token, host)
+
+@since 1.2.0
+
+Will return whether the user has voted or not.
+
+| name   | type   |
+| ------ | ------ |
+| userId | string |
+| botId  | string |
+| token  | string |
+| host   | top.gg |
 
 ## Support
 
