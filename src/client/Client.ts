@@ -8,7 +8,7 @@ export default class Client {
 	public declare readonly stats;
 	public declare readonly cache;
 
-	protected constructor(client: ClientType, options?: Options) {
+	public constructor(client: ClientType, options?: Options) {
 		if (!client.stats) client.stats = options?.stats;
 
 		if (!client.stats) throw new Error(`You need to specify a stats object on your client or parse this as second argument.`);
@@ -24,7 +24,7 @@ export default class Client {
 		this.cache = { voters: [] };
 	}
 
-	protected async post() {
+	public async post() {
 		const responses: Record<string, unknown> = {};
 
 		responses.topgg = await post(this);
@@ -40,7 +40,7 @@ export default class Client {
 		return responses;
 	}
 
-	protected async votes() {
+	public async votes() {
 		const responses: Record<string, unknown> = {};
 
 		const get = async () => {
@@ -62,11 +62,11 @@ export default class Client {
 		return responses;
 	}
 
-	protected async validate(user: any) {
+	public async validate(user: any) {
 		return await validate(this, user);
 	}
 
-	protected async init() {
+	public async init() {
 		await this.post();
 		await this.votes();
 	}
