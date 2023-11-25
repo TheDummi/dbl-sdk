@@ -1,8 +1,18 @@
-node_modules
-src
-.gitattributes
-.gitignore
-.prettierrc
-package-lock.json
-tsconfig.json
+# . Environment
+docs
+*.md
 test
+
+# * Node
+node_modules
+package-lock.json
+
+# ! Config
+.gitignore
+.gitattributes
+.github
+.prettierrc
+
+# ? TypeScript
+tsconfig.json
+src

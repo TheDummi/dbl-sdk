@@ -1,6 +1,6 @@
 /** @format */
 
-import Client from "./client/Client.js";
+import Client from './client/Client.js';
 
 export {};
 
