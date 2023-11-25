@@ -1,4 +1,7 @@
-import DBL from './models/client.js';
-import hasVoted from './models/hasVoted.js';
+/** @format */
 
-export { hasVoted, DBL };
+import Client from './client/Client.js';
+
+export {};
+
+export default Client;
