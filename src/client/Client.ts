@@ -55,7 +55,7 @@ export default class Client {
 			return await this.client.emit('dbl-sync', this.client, responses);
 		};
 
-		get();
+		await get();
 
 		setInterval(get, 60000);
 
